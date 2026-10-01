@@ -16,7 +16,7 @@ html,body{height:100%;background:#000;overflow:hidden;color:#fff;font-family:-ap
 .solid{background:#454545;border-radius:999px;opacity:calc(1 - var(--p))}
 .thumb{opacity:var(--p);overflow:hidden}
 .lens{position:absolute;inset:0;border-radius:inherit;overflow:hidden;background:#3c3c3c}
-.lens .tabs{inset:auto;left:calc(-12*var(--u) - var(--x)*273*var(--u) - 1px);top:calc(-12*var(--u) - 1px);width:calc(843*var(--u));height:calc(190*var(--u))}
+.lens .tabs{inset:auto;left:calc(-12*var(--u) - var(--x)*273*var(--u) - var(--tx)*var(--u) - 1px);top:calc(-12*var(--u) - 1px);width:calc(843*var(--u));height:calc(190*var(--u))}
 .lens .gap,.lens .tab.on .gap{stroke:#3c3c3c}
 .fb{-webkit-backdrop-filter:blur(3px) saturate(1.4);backdrop-filter:blur(3px) saturate(1.4)}
 .bar{position:relative;width:calc(843*var(--u));height:calc(190*var(--u));touch-action:none;cursor:grab}
@@ -25,7 +25,7 @@ html,body{height:100%;background:#000;overflow:hidden;color:#fff;font-family:-ap
 .circle{position:relative;width:calc(191*var(--u));height:calc(191*var(--u));display:grid;place-items:center;cursor:pointer;color:#fff;transition:scale .4s cubic-bezier(.3,1.5,.5,1)}
 .circle:active{scale:1.12}
 .circle svg{height:calc(70*var(--u));width:auto}
-.thumb,.solid{position:absolute;top:calc(12*var(--u));left:calc(12*var(--u) + var(--x)*273*var(--u));width:calc(273*var(--u));height:calc(165*var(--u));scale:var(--sx) var(--sy);pointer-events:none}
+.thumb,.solid{position:absolute;top:calc(12*var(--u));left:calc(12*var(--u) + var(--x)*273*var(--u));width:calc(273*var(--u));height:calc(165*var(--u));translate:calc(var(--tx)*var(--u)) 0;scale:var(--sx) var(--sy);pointer-events:none}
 .tabs{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,calc(273*var(--u)));padding:0 calc(12*var(--u));pointer-events:none}
 .tab{all:unset;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:calc(10*var(--u));font-size:calc(30*var(--u));font-weight:600;line-height:1.2;color:#fff;transition:color .25s;pointer-events:auto}
 .tab:focus-visible{outline:2px solid var(--blue);outline-offset:-4px;border-radius:999px}
@@ -34,25 +34,29 @@ html,body{height:100%;background:#000;overflow:hidden;color:#fff;font-family:-ap
 .tab.on .gap{stroke:#454545}
 .ico{height:calc(70*var(--u));display:grid;place-items:center}
 .ico svg{height:100%;width:auto;display:block}
-.av{width:calc(76*var(--u));height:calc(76*var(--u));border-radius:50%;background:#7d8a97 url(data:image/jpeg;base64,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) center/cover}
+.av{width:calc(62*var(--u));height:calc(62*var(--u));border-radius:50%;background:#7d8a97 center/cover no-repeat;display:grid;place-items:center;overflow:hidden;transition:box-shadow .25s}
+.av svg{width:100%;height:100%;display:block}
+.av.has svg{display:none}
+.tab.on .av{box-shadow:0 0 0 calc(3*var(--u)) var(--blue)}
 </style>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
 <div class="dock">
-  <div class="bar" id="bar" style="--x:1;--sx:1;--sy:1;--p:0">
+  <div class="bar" id="bar" style="--x:1;--tx:0;--sx:1;--sy:1;--p:0">
     <div class="matte base" id="base"></div>
     <div class="solid"></div>
     <div class="tabs" id="tabs">
       <button class="tab" aria-label="Контакты">
-        <span class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="currentColor"/><circle cx="12" cy="9.2" r="3.9" fill="#1c1c1e"/><path d="M4.2 19.6C5.7 16.6 8.6 15.2 12 15.2s6.3 1.4 7.8 4.4A11.9 11.9 0 0 1 12 24a11.9 11.9 0 0 1-7.8-4.4z" fill="#1c1c1e"/></svg></span>
+        <span class="ico"><svg viewBox="10 10 80 80"><path fill="currentColor" d="M50,31.06 C44.02,31.06 39.18,35.90 39.18,41.88 C39.18,47.86 44.02,52.70 50,52.70 C55.97,52.70 60.81,47.86 60.81,41.88 C60.81,35.90 55.97,31.06 50,31.06 C50,31.06 50,31.06 50,31.06z M50,60.82 C41.86,60.82 35.55,62.73 31.06,66.56 C30.65,66.91 30.18,67.38 29.62,67.98 C28.63,69.06 28.69,70.75 29.75,71.77 C30.26,72.26 30.70,72.66 31.07,72.96 C36.39,77.36 43.09,79.76 50,79.75 C56.91,79.76 63.61,77.35 68.93,72.95 C69.30,72.65 69.73,72.25 70.24,71.77 C71.30,70.76 71.36,69.06 70.36,67.98 C70.36,67.98 69.97,67.56 69.97,67.56 C69.64,67.21 69.30,66.88 68.94,66.57 C64.45,62.73 58.14,60.81 50,60.81 C50,60.81 50,60.82 50,60.82z M50,14.83 C69.42,14.83 85.16,30.57 85.16,50 C85.16,69.42 69.42,85.16 50,85.16 C30.57,85.16 14.83,69.42 14.83,50 C14.83,30.57 30.57,14.83 50,14.83 C50,14.83 50,14.83 50,14.83z"/></svg></span>
         <span>Контакты</span>
       </button>
       <button class="tab on" aria-label="Чаты">
-        <span class="ico"><svg viewBox="0 0 40 34"><ellipse cx="27.5" cy="14.5" rx="12" ry="10.5" fill="currentColor" opacity=".5"/><path d="M31 24l5.5 7c-3.4-.3-7-2-10.5-5.5z" fill="currentColor" opacity=".5"/><g class="gap" stroke-width="2.8" paint-order="stroke"><ellipse cx="16" cy="13.5" rx="15" ry="12.5" fill="currentColor"/><path d="M9 23L4 31.5c4-.5 7.5-2.5 10-5z" fill="currentColor"/></g></svg></span>
+        <span class="ico"><svg viewBox="10 10 80 80"><path fill="currentColor" d="M40.64,17.92 C56.88,17.92 70.04,29.89 70.04,44.65 C70.04,59.41 56.88,71.38 40.64,71.38 C38.15,71.38 35.73,71.09 33.43,70.57 C32.46,70.34 31.21,72.85 26.72,75.36 C23.59,77.12 19.24,76.97 18.51,76.66 C17.32,76.16 19.69,74.82 21.60,71.90 C23.51,68.98 22.72,65.49 21.87,64.87 C15.17,59.97 11.24,53.07 11.24,44.65 C11.24,29.89 24.40,17.92 40.64,17.92 C40.64,17.92 40.64,17.92 40.64,17.92z M68.80,27.35 C80.40,30.93 88.75,40.91 88.75,52.67 C88.75,61.09 84.82,67.99 78.12,72.89 C77.27,73.51 76.48,76.99 78.39,79.92 C80.30,82.84 82.67,84.18 81.48,84.68 C80.75,84.99 76.40,85.14 73.27,83.38 C68.78,80.87 67.53,78.36 66.56,78.58 C64.20,79.12 61.78,79.40 59.35,79.39 C53.85,79.39 48.70,78.02 44.30,75.63 C61.20,73.96 74.48,60.81 74.48,44.65 C74.48,38.23 72.38,32.29 68.80,27.35 C68.80,27.35 68.80,27.35 68.80,27.35z"/></svg></span>
         <span>Чаты</span>
       </button>
       <button class="tab" aria-label="Настройки">
-        <span class="ico"><span class="av"></span></span>
+        <span class="ico"><span class="av"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="4.2" fill="rgba(255,255,255,.85)"/><path d="M3.5 22c.8-4.6 4.2-7 8.5-7s7.7 2.4 8.5 7z" fill="rgba(255,255,255,.85)"/></svg></span></span>
         <span>Настройки</span>
       </button>
     </div>
@@ -139,40 +143,83 @@ const tabs = [...$('tabs').children], tabsEl = $('tabs');
 const clone = tabsEl.cloneNode(true); clone.removeAttribute('id'); clone.setAttribute('aria-hidden', 'true');
 clone.querySelectorAll('button').forEach(b => b.tabIndex = -1); lens.appendChild(clone);
 const cloneTabs = [...clone.children];
-let cur = 1, target = 1, press = 0, down = false, grab = 0, active = 1;
+let cur = 1, vel = 0, target = 1, press = 0, pvel = 0, down = false, grab = 0, active = 1;
+let pRaw = 1, pT = 0, pV = 0, mv = 0, mvv = 0, wasMoving = false; // скорость пальца (в табах/сек)
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 function setActive(i) { if (i === active) return; active = i; [tabs, cloneTabs].forEach(arr => arr.forEach((el, n) => el.classList.toggle('on', n === i))); }
 function ptr(e) {
   const rc = tabsEl.getBoundingClientRect(), w = tabs[0].offsetWidth, pad = (rc.width - w * 3) / 2;
   return (e.clientX - rc.left - pad) / w;
 }
-function place(p) {
+function place(p, now) {
   const raw = p - .5 - grab;
-  target = raw < 0 ? raw * .3 : raw > 2 ? 2 + (raw - 2) * .3 : raw; // лёгкое сопротивление у краёв
+  target = raw < 0 ? raw * .3 : raw > 2 ? 2 + (raw - 2) * .3 : raw; // сопротивление у краёв
+  if (pT) { const dt = Math.max(.008, (now - pT) / 1000); pV += ((raw - pRaw) / dt - pV) * .35; }
+  pRaw = raw; pT = now;
   setActive(clamp(Math.round(raw), 0, 2));
 }
 bar.addEventListener('pointerdown', e => {
   bar.setPointerCapture(e.pointerId); down = true; bar.classList.add('down');
-  const p = ptr(e); grab = Math.abs(p - (cur + .5)) < .5 ? p - (cur + .5) : 0; place(p);
+  pV = 0; pT = 0;
+  const p = ptr(e); grab = Math.abs(p - (cur + .5)) < .5 ? p - (cur + .5) : 0; place(p, e.timeStamp);
 });
-bar.addEventListener('pointermove', e => { if (down) place(ptr(e)); });
-['pointerup', 'pointercancel'].forEach(n => bar.addEventListener(n, () => {
-  if (!down) return; down = false; bar.classList.remove('down'); target = active;
+bar.addEventListener('pointermove', e => { if (down) place(ptr(e), e.timeStamp); });
+['pointerup', 'pointercancel'].forEach(n => bar.addEventListener(n, e => {
+  if (!down) return; down = false; bar.classList.remove('down');
+  if (e.timeStamp - pT > 90) pV = 0;           // палец стоял — инерции нет
+  pV = clamp(pV, -9, 9);
+  const dest = clamp(Math.round(pRaw + pV * .1), 0, 2); // бросок «перебрасывает» каплю дальше
+  target = dest; setActive(dest);
+  vel += pV * .15;                              // импульс при отпускании
 }));
 tabs.forEach((el, n) => el.addEventListener('click', e => { if (e.detail === 0) { target = n; setActive(n); } }));
 let last = performance.now();
 (function loop(now) {
   const dt = Math.min(.05, (now - last) / 1000 || .016); last = now;
-  const v = target - cur;
-  cur += v * (1 - Math.exp(-dt * (down ? 12 : 6.5)));
-  press += ((down ? 1 : 0) - press) * (1 - Math.exp(-dt * 10));
-  const st = Math.min(.05, Math.abs(v) * .12), boost = Math.min(1, Math.abs(v) * 2.5), s = 1 + .07 * Math.max(press, boost);
+  // пружины: на пальце — мягкое следование, после отпускания — недодемпфированная (с перелётом и покачиванием)
+  const k = down ? 240 : 170, c = down ? 26 : 14.5, pk = 230, pc = 15;
+  const n = 4, h = dt / n;
+  for (let i = 0; i < n; i++) {
+    vel += (-k * (cur - target) - c * vel) * h; cur += vel * h;
+    pvel += (-pk * (press - (down ? 1 : 0)) - pc * pvel) * h; press += pvel * h;
+  }
+  // без зажатия: пока капля едет, она раздувается ровно до краёв бара (297×190 при исходных 273×165)
+  const moving = Math.abs(cur - target) > .1 || Math.abs(vel) > .9;
+  { // критически задемпфированная пружина: мягкий старт и мягкая остановка, без рывка и перелёта
+    // капля «приехала»: толчок наружу — она на миг раздувается чуть шире краёв бара,
+    // затем с покачиванием (недодемпфированная пружина) возвращается и даже чуть недотягивает до нормы
+    if (wasMoving && !moving && !down) mvv += 17;
+    wasMoving = moving;
+    const mk = moving ? 380 : 900, mc = 2 * Math.sqrt(mk) * (moving ? 1 : .75);
+    for (let i = 0; i < 4; i++) { mvv += (-mk * (mv - (moving ? 1 : 0)) - mc * mvv) * (dt / 4); mv += mvv * (dt / 4); }
+    mv = clamp(mv, -.2, 1.6);
+  }
+  const g = (mv < 0 && press < .02) ? mv : Math.max(mv, press);
+  const st = clamp(Math.abs(vel) * .03, 0, .15) * (down ? 1 : .45);  // растяжение по скорости
+  const s = 1 + .088 * g + .082 * press, sy = 1 + .152 * g + .088 * press; // до краёв бара; при зажатии — ещё больше
   bar.style.setProperty('--x', cur.toFixed(4));
-  bar.style.setProperty('--sx', (s * (1 + st)).toFixed(4));
-  bar.style.setProperty('--sy', (s * (1 - st * .4)).toFixed(4));
-  bar.style.setProperty('--p', press.toFixed(3));
+  // Границы бара (843×190): капля не выходит за них — упирается и мягко сплющивается о стенку
+  const K = 6, sm = (v, m) => v <= m - K ? v : m - K * Math.exp(-(v - (m - K)) / K); // мягкий упор
+  let sxv = s * (1 + st), syv = sy * (1 - st * .5);
+  const h0 = 165 * syv, h1 = sm(h0, 190);          // сверху/снизу: не выше бара, лишнее уходит в ширину
+  sxv *= Math.sqrt(h0 / h1); syv = h1 / 165;
+  const cx = 12 + cur * 273 + 136.5, w0 = 273 * sxv;
+  const Lc = -sm(-(cx - w0 / 2), 0), Rc = sm(cx + w0 / 2, 843); // слева/справа: упор в края
+  bar.style.setProperty('--tx', ((Lc + Rc) / 2 - cx).toFixed(3));
+  bar.style.setProperty('--sx', ((Rc - Lc) / 273).toFixed(4));
+  bar.style.setProperty('--sy', syv.toFixed(4));
+  bar.style.setProperty('--p', clamp(g, 0, 1).toFixed(3));
   requestAnimationFrame(loop);
 })(performance.now());
+
+// Аватарка из Telegram Web App (вне Telegram остаётся силуэт)
+function tgPhoto() {
+  try { const w = window.Telegram && Telegram.WebApp; w && w.ready && w.ready(); const u = w && w.initDataUnsafe && w.initDataUnsafe.user; if (u && u.photo_url) return u.photo_url; } catch (e) {}
+  try { const h = new URLSearchParams(location.hash.slice(1)).get('tgWebAppData'); if (h) { const u = JSON.parse(new URLSearchParams(h).get('user') || 'null'); if (u && u.photo_url) return u.photo_url; } } catch (e) {}
+  return null;
+}
+const photo = tgPhoto();
+if (photo) { const im = new Image(); im.referrerPolicy = 'no-referrer'; im.onload = () => document.querySelectorAll('.av').forEach(a => { a.style.backgroundImage = `url("${photo}")`; a.classList.add('has'); }); im.src = photo; }
 </script>
 </body>
 </html>
