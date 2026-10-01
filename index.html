@@ -11,17 +11,13 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;background:#000;overflow:hidden;overscroll-behavior:none;color:#fff;font-family:-apple-system,"SF Pro Text",Inter,system-ui,"Segoe UI",sans-serif;user-select:none;-webkit-user-select:none}
 .dock{position:fixed;left:0;right:0;bottom:calc(var(--bot) + 12px);display:flex;justify-content:center;gap:calc(24*var(--u))}
-.matte{--tint:rgba(39,39,39,.62);border-radius:999px;isolation:isolate;background:none;border:0;box-shadow:0 8px 24px rgba(0,0,0,.3)}
-/* слой преломления: копия списка под стеклом, искажённая SVG-фильтром (работает и в iOS WebKit, где backdrop-filter:url() не поддерживается) */
-.refr{position:absolute;inset:0;z-index:-1;border-radius:inherit;overflow:hidden;background:#000;pointer-events:none}
-.refr::after{content:"";position:absolute;inset:0;background:var(--tint);box-shadow:inset 0 0 8px rgba(255,255,255,.05)}
-.refr .rl{position:absolute;inset:auto;overflow:hidden;pointer-events:none;opacity:0;transition:opacity .25s}
-body.v0on .refr .rl{opacity:1}
+.matte{border-radius:999px;background:rgba(39,39,39,.62);-webkit-backdrop-filter:blur(8px) saturate(1.8);backdrop-filter:blur(8px) saturate(1.8);border:0;
+  box-shadow:inset 0 0 8px rgba(255,255,255,.05),0 8px 24px rgba(0,0,0,.3)}
 /* кантик: ярче на ровных верхе и низе, к скруглённым краям угасает; по бокам почти нет */
 .matte::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:2px;pointer-events:none;filter:blur(.7px);
   background:linear-gradient(90deg,rgba(255,255,255,.03) 0,rgba(255,255,255,.14) 16%,rgba(255,255,255,.25) 36%,rgba(255,255,255,.27) 50%,rgba(255,255,255,.25) 64%,rgba(255,255,255,.14) 84%,rgba(255,255,255,.03) 100%);
   -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
-.hbtn{background:none}
+.hbtn{background:rgba(39,39,39,.62)}
 .glass{border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.25);box-shadow:inset 0 0 16px -4px rgba(255,255,255,.45),0 10px 26px rgba(0,0,0,.4)}
 .solid{background:rgba(255,255,255,.16);border-radius:999px;opacity:clamp(0,calc(1 - var(--p)*4),1);will-change:transform,opacity;backface-visibility:hidden}
 .thumb{opacity:clamp(0,calc(var(--p)*4),1);overflow:hidden;will-change:transform,opacity;backface-visibility:hidden}
@@ -85,8 +81,8 @@ body.v0on .refr .rl{opacity:1}
 .scrim{position:fixed;inset:0;z-index:9;display:none;touch-action:none}
 .scrim.on{display:block}
 .menu{position:fixed;z-index:10;width:min(233px,calc(100vw - 32px));padding:9px 0;border-radius:26px;touch-action:none;
-  --tint:rgba(36,36,36,.48);background:none;
-  box-shadow:0 16px 44px rgba(0,0,0,.55);
+  background:rgba(36,36,36,.48);-webkit-backdrop-filter:blur(20px) saturate(1.8);backdrop-filter:blur(20px) saturate(1.8);
+  box-shadow:inset 0 0 8px rgba(255,255,255,.05),0 16px 44px rgba(0,0,0,.55);
   opacity:0;visibility:hidden;transform:scale(.55);
   transition:transform .17s ease-in,opacity .14s,visibility .14s}
 .menu.on{opacity:1;visibility:visible;transform:none;transition:transform .34s cubic-bezier(.2,1.3,.35,1),opacity .16s,visibility 0s}
@@ -190,51 +186,32 @@ function maps(w, h, r, B, p, mx) {
 function filterFor(el, id) {
   const w = el.offsetWidth, h = el.offsetHeight;
   if (w < 2 || h < 2) return '';
-  const soft = !!el.dataset.soft, bd = !!el.dataset.bd, r = +el.dataset.r || h / 2, B = Math.min(h * (bd ? .3 : soft ? .15 : .34), r - 1), p = profile(h * (bd ? .32 : soft ? .2 : .42), B, bd ? 1.6 : soft ? 1.5 : 1.9);
+  const soft = !!el.dataset.soft, r = h / 2, B = Math.min(h * (soft ? .15 : .34), r - 1), p = profile(h * (soft ? .2 : .42), B, soft ? 1.5 : 1.9);
   const mx = Math.max(...Array.from(p, Math.abs)) || 1, [disp, spec] = maps(w, h, r, B, p, mx);
   return `<filter id="${id}" x="0%" y="0%" width="100%" height="100%">
 <feGaussianBlur in="SourceGraphic" stdDeviation="0.2" result="bl"/>
 <feImage href="${disp}" x="0" y="0" width="${w}" height="${h}" result="dm"/>
-<feDisplacementMap in="bl" in2="dm" scale="${mx * (bd ? .26 : soft ? .1 : .4)}" xChannelSelector="R" yChannelSelector="G" result="dp"/>
+<feDisplacementMap in="bl" in2="dm" scale="${mx * (soft ? .1 : .4)}" xChannelSelector="R" yChannelSelector="G" result="dp"/>
 <feColorMatrix in="dp" type="saturate" values="5" result="ds"/>
 <feImage href="${spec}" x="0" y="0" width="${w}" height="${h}" result="sl"/>
 <feComposite in="ds" in2="sl" operator="in" result="sm"/>
-<feComponentTransfer in="sl" result="sf"><feFuncA type="linear" slope="${bd ? .3 : soft ? 0 : 1}"/></feComponentTransfer>
+<feComponentTransfer in="sl" result="sf"><feFuncA type="linear" slope="${soft ? 0 : 1}"/></feComponentTransfer>
 <feBlend in="sm" in2="dp" mode="normal" result="ws"/>
 <feBlend in="sf" in2="ws" mode="normal"/></filter>`;
 }
 const isChromium = /Chrome\//.test(navigator.userAgent) && !/CriOS|FxiOS|EdgiOS/.test(navigator.userAgent);
 const $ = id => document.getElementById(id);
 const bar = $('bar'), base = $('base'), thumb = $('thumb'), search = $('search');
-const bdEls = [[base, 'bd-base'], [search, 'bd-search'], [$('sortBtn'), 'bd-sort'], [$('plusBtn'), 'bd-plus'], [$('menu'), 'bd-menu']];
-bdEls.forEach(([el]) => el.dataset.bd = '1');
-$('menu').dataset.r = 26;
+const bdEls = [[base, 'bd-base'], [search, 'bd-search'], [$('sortBtn'), 'bd-sort'], [$('plusBtn'), 'bd-plus']];
+bdEls.forEach(([el]) => el.dataset.soft = '1');
 const lens = $('lens'), slens = $('slens'), lensSort = $('lensSort'), lensPlus = $('lensPlus'), glassEls = [[lens, 'lg-thumb'], [slens, 'lg-search'], [lensSort, 'lg-sort'], [lensPlus, 'lg-plus']];
 [['lensSort', 'sortBtn'], ['lensPlus', 'plusBtn']].forEach(([l, b]) => $(l).innerHTML = '<div class="sclone">' + $(b).querySelector('.gc').outerHTML + '</div>');
 slens.innerHTML = '<div class="sclone">' + search.querySelector('svg').outerHTML + '</div>';
-// Слой преломления под каждым стеклом: копия списка, сдвинутая так, чтобы совпадать с реальным положением на экране
-const refrs = bdEls.map(([el]) => {
-  const r = document.createElement('div'); r.className = 'refr'; r.setAttribute('aria-hidden', 'true');
-  const l = document.createElement('div'); l.className = 'list rl'; r.appendChild(l); el.insertBefore(r, el.firstChild);
-  return { el, r, l };
-});
-function placeRefr() {
-  const L = $('list'), w = L.offsetWidth, h = L.offsetHeight;
-  refrs.forEach(({ el, l }) => {
-    let x = 0, y = 0; for (let e = el; e; e = e.offsetParent) { x += e.offsetLeft; y += e.offsetTop; }
-    l.style.left = -x + 'px'; l.style.top = -y + 'px'; l.style.width = w + 'px'; l.style.height = h + 'px'; l.scrollTop = L.scrollTop;
-  });
-}
-function syncClones() { const html = $('list').innerHTML.replace(' id="contacts"', ''); refrs.forEach(({ l }) => l.innerHTML = html); placeRefr(); }
-let rq = 0;
-$('list').addEventListener('scroll', () => { if (rq) return; rq = requestAnimationFrame(() => { rq = 0; const t = $('list').scrollTop; refrs.forEach(({ l }) => l.scrollTop = t); }); }, { passive: true });
-addEventListener('resize', placeRefr);
 function rebuild() {
-  $('defs').innerHTML = glassEls.concat(bdEls).map(([el, id]) => filterFor(el, id)).join('');
+  $('defs').innerHTML = glassEls.concat(isChromium ? bdEls : []).map(([el, id]) => filterFor(el, id)).join('');
   glassEls.forEach(([el, id]) => el.style.filter = `url(#${id})`);
-  // у стекла вместо размытия фона — искажение, как от капли: фильтр висит на слое-копии
-  refrs.forEach(({ r }, n) => r.style.filter = `url(#${bdEls[n][1]}) saturate(1.5) blur(.6px)`);
-  placeRefr();
+  // backdrop-filter: url(#svg) умеет только Chromium; в Safari/WebView iOS остаётся обычное размытие из CSS
+  if (isChromium) bdEls.forEach(([el, id]) => { const v = `url(#${id}) blur(4px) saturate(1.8)`; el.style.backdropFilter = v; el.style.webkitBackdropFilter = v; });
 }
 let t;
 const ro = new ResizeObserver(() => { clearTimeout(t); t = setTimeout(rebuild, 80); });
@@ -249,7 +226,7 @@ const cloneTabs = [...clone.children];
 let cur = 1, vel = 0, target = 1, press = 0, pvel = 0, down = false, grab = 0, active = 1;
 let pRaw = 1, pT = 0, pV = 0, mv = 0, mvv = 0, wasMoving = false, lag = 1, lagv = 0; // скорость пальца (в табах/сек)
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-function setActive(i) { if (i === active) return; active = i; document.body.classList.toggle('v0on', i === 0); $('v0').classList.toggle('on', i === 0); [tabs, cloneTabs].forEach(arr => arr.forEach((el, n) => el.classList.toggle('on', n === i))); }
+function setActive(i) { if (i === active) return; active = i; $('v0').classList.toggle('on', i === 0); [tabs, cloneTabs].forEach(arr => arr.forEach((el, n) => el.classList.toggle('on', n === i))); }
 function ptr(e) {
   const rc = tabsEl.getBoundingClientRect(), w = tabs[0].offsetWidth, pad = (rc.width - w * 3) / 2;
   return (e.clientX - rc.left - pad) / w;
@@ -375,7 +352,6 @@ function renderContacts(mode) {
   });
   $('contacts').innerHTML = html;
   $('list').scrollTop = 0;
-  syncClones();
 }
 renderContacts(sortMode);
 
@@ -398,7 +374,7 @@ const hap = (() => {
     menu.style.left = Math.max(8, r.left) + 'px';
     menu.style.top = (r.bottom + 10) + 'px';
     menu.style.transformOrigin = (r.left + r.width / 2 - Math.max(8, r.left)) + 'px -10px';
-    open = true; placeRefr(); menu.classList.add('on'); scrim.classList.add('on');
+    open = true; menu.classList.add('on'); scrim.classList.add('on');
     hap.impact('medium');
   }
   function hide() { open = false; menu.classList.remove('on'); scrim.classList.remove('on'); setHl(-1, true); }
