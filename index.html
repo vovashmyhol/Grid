@@ -12,6 +12,8 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
 html,body{height:100%;background:#000;overflow:hidden;color:#fff;font-family:-apple-system,"SF Pro Text",Inter,system-ui,"Segoe UI",sans-serif;user-select:none;-webkit-user-select:none}
 .dock{position:fixed;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 28px);display:flex;justify-content:center;gap:calc(24*var(--u))}
 .matte{border-radius:999px;background:#262626;border:1px solid rgba(255,255,255,.13);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 8px 24px rgba(0,0,0,.5)}
+.hbtn{background:linear-gradient(180deg,#2d2d2d 0,#262626 14%,#252525 84%,#2b2b2b 100%);border:0;
+  box-shadow:inset 0 1px 0 -.5px rgba(255,255,255,.26),inset 0 -1px 0 -.5px rgba(255,255,255,.26),inset 0 3px 3px -2px rgba(255,255,255,.08),inset 0 -3px 3px -2px rgba(255,255,255,.06)}
 .glass{border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.25);box-shadow:inset 0 0 16px -4px rgba(255,255,255,.45),0 10px 26px rgba(0,0,0,.4)}
 .solid{background:#454545;border-radius:999px;opacity:calc(1 - var(--p))}
 .thumb{opacity:var(--p);overflow:hidden}
@@ -46,7 +48,7 @@ html,body{height:100%;background:#000;overflow:hidden;color:#fff;font-family:-ap
 .view.on{opacity:1;visibility:visible}
 .hdr{position:relative;display:flex;justify-content:space-between;align-items:center}
 .hdr h1{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:17px;font-weight:600;pointer-events:none}
-.pill{height:43px;padding:0 20px;display:grid;place-items:center;font-size:17px;font-weight:600;white-space:nowrap}
+.pill{height:43px;padding:0 16px;display:grid;place-items:center;font-size:17px;font-weight:600;white-space:nowrap}
 .pill .gc,.pill .sclone{line-height:1;padding-bottom:1px}
 .sq{width:43px;height:43px;display:grid;place-items:center}
 .sq svg{width:20px;height:20px;display:block}
@@ -63,9 +65,9 @@ html,body{height:100%;background:#000;overflow:hidden;color:#fff;font-family:-ap
 <body>
 <section class="view" id="v0">
   <header class="hdr">
-    <div class="matte gb pill" id="sortBtn"><span class="gc">Сортировка</span><div class="glass soft sthumb"><div class="lens" id="lensSort" data-soft="1"></div></div></div>
+    <div class="matte hbtn gb pill" id="sortBtn"><span class="gc">Сортировка</span><div class="glass soft sthumb"><div class="lens" id="lensSort" data-soft="1"></div></div></div>
     <h1>Контакты</h1>
-    <div class="matte gb sq" id="plusBtn"><svg class="gc" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2v16M2 10h16"/></svg><div class="glass soft sthumb"><div class="lens" id="lensPlus" data-soft="1"></div></div></div>
+    <div class="matte hbtn gb sq" id="plusBtn"><svg class="gc" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2v16M2 10h16"/></svg><div class="glass soft sthumb"><div class="lens" id="lensPlus" data-soft="1"></div></div></div>
   </header>
   <div class="field"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><circle cx="11.5" cy="11.5" r="8"/><path d="M17.5 17.5L25 25"/></svg>Поиск</div>
   <div class="invite"><svg viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="16" cy="9" r="5.2"/><path d="M15.5 24.6c4.6.6 9-1 8.2-5-.6-2.6-3.4-3.8-7.7-3.6M3.5 24h8M7.5 20v8"/></svg>Пригласить</div>
@@ -227,7 +229,7 @@ function glassBtn(el, getL, always, mv = 1) { // mv — какая доля см
     el.style.setProperty('--sp', always ? 1 : clamp(pr, 0, 1).toFixed(3)); // always — стекло включено постоянно
   };
 }
-const btnSteps = [glassBtn(search, () => 70 * sU()), glassBtn($('sortBtn'), () => 24, true, .12), glassBtn($('plusBtn'), () => 24, true, .12)];
+const btnSteps = [glassBtn(search, () => 70 * sU()), glassBtn($('sortBtn'), () => 24, false, .12), glassBtn($('plusBtn'), () => 24, false, .12)];
 let last = performance.now();
 (function loop(now) {
   const dt = Math.min(.05, (now - last) / 1000 || .016); last = now;
