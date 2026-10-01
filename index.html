@@ -22,8 +22,10 @@ html,body{height:100%;background:#000;overflow:hidden;color:#fff;font-family:-ap
 .bar{position:relative;width:calc(843*var(--u));height:calc(190*var(--u));touch-action:none;cursor:grab}
 .bar.down{cursor:grabbing}
 .base{position:absolute;inset:0}
-.circle{position:relative;width:calc(191*var(--u));height:calc(191*var(--u));display:grid;place-items:center;cursor:pointer;color:#fff;transition:scale .4s cubic-bezier(.3,1.5,.5,1)}
-.circle:active{scale:1.12}
+.circle{position:relative;width:calc(191*var(--u));height:calc(191*var(--u));display:grid;place-items:center;cursor:grab;color:#fff;touch-action:none;translate:var(--ox,0px) var(--oy,0px);scale:var(--cx,1) var(--cy,1)}
+.circle>svg{opacity:calc(1 - var(--sp,0))}
+.sthumb{position:absolute;inset:0;overflow:hidden;opacity:var(--sp,0);pointer-events:none}
+.sclone{position:absolute;inset:0;display:grid;place-items:center;color:#fff}
 .circle svg{height:calc(70*var(--u));width:auto}
 .thumb,.solid{position:absolute;top:calc(12*var(--u));left:calc(12*var(--u) + var(--x)*273*var(--u));width:calc(273*var(--u));height:calc(165*var(--u));translate:calc(var(--tx)*var(--u)) 0;scale:var(--sx) var(--sy);pointer-events:none}
 .tabs{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,calc(273*var(--u)));padding:0 calc(12*var(--u));pointer-events:none}
@@ -64,6 +66,7 @@ html,body{height:100%;background:#000;overflow:hidden;color:#fff;font-family:-ap
   </div>
   <div class="matte circle" id="search" role="button" tabindex="0" aria-label="Поиск">
     <svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><circle cx="11.5" cy="11.5" r="8"/><path d="M17.5 17.5L25 25"/></svg>
+    <div class="glass sthumb"><div class="lens" id="slens"></div></div>
   </div>
 </div>
 <svg width="0" height="0" style="position:absolute" color-interpolation-filters="sRGB"><defs id="defs"></defs></svg>
@@ -128,7 +131,8 @@ function filterFor(el, id) {
 const isChromium = /Chrome\//.test(navigator.userAgent) && !/CriOS|FxiOS|EdgiOS/.test(navigator.userAgent);
 const $ = id => document.getElementById(id);
 const bar = $('bar'), base = $('base'), thumb = $('thumb'), search = $('search');
-const lens = $('lens'), glassEls = [[lens, 'lg-thumb']];
+const lens = $('lens'), slens = $('slens'), glassEls = [[lens, 'lg-thumb'], [slens, 'lg-search']];
+slens.innerHTML = '<div class="sclone">' + search.querySelector('svg').outerHTML + '</div>';
 function rebuild() {
   $('defs').innerHTML = glassEls.map(([el, id]) => filterFor(el, id)).join('');
   glassEls.forEach(([el, id]) => el.style.filter = `url(#${id})`);
@@ -173,6 +177,27 @@ bar.addEventListener('pointermove', e => { if (down) place(ptr(e), e.timeStamp);
   vel += pV * .15;                              // импульс при отпускании
 }));
 tabs.forEach((el, n) => el.addEventListener('click', e => { if (e.detail === 0) { target = n; setActive(n); } }));
+// Кнопка поиска: «тугая» жидкая капля — тянется с сопротивлением, увеличивается при зажатии, пружинит назад
+const sU = () => search.offsetWidth / 191;
+let sx0 = 0, sy0 = 0, sd = false, sox = 0, soy = 0, svx = 0, svy = 0, stx = 0, sty = 0, sPress = 0, sPv = 0;
+const soft = (d, L) => L * Math.tanh(d / (L * 3.4)); // чем дальше тянешь, тем туже
+search.addEventListener('pointerdown', e => { search.setPointerCapture(e.pointerId); sd = true; sx0 = e.clientX; sy0 = e.clientY; stx = sty = 0; });
+search.addEventListener('pointermove', e => { if (!sd) return; const L = 70 * sU(); stx = soft(e.clientX - sx0, L); sty = soft(e.clientY - sy0, L); });
+['pointerup', 'pointercancel'].forEach(n => search.addEventListener(n, () => { sd = false; stx = sty = 0; }));
+function searchStep(dt) {
+  const k = sd ? 260 : 150, c = sd ? 24 : 9, n = 4, h = dt / n;
+  for (let i = 0; i < n; i++) {
+    svx += (-k * (sox - stx) - c * svx) * h; sox += svx * h;
+    svy += (-k * (soy - sty) - c * svy) * h; soy += svy * h;
+    sPv += (-230 * (sPress - (sd ? 1 : 0)) - 16 * sPv) * h; sPress += sPv * h;
+  }
+  const L = 70 * sU(), ax = Math.min(1.3, Math.abs(sox) / L), ay = Math.min(1.3, Math.abs(soy) / L), sc = 1 + .14 * sPress;
+  search.style.setProperty('--ox', sox.toFixed(2) + 'px');
+  search.style.setProperty('--oy', soy.toFixed(2) + 'px');
+  search.style.setProperty('--cx', (sc * (1 + .14 * ax - .07 * ay)).toFixed(4));
+  search.style.setProperty('--cy', (sc * (1 + .14 * ay - .07 * ax)).toFixed(4));
+  search.style.setProperty('--sp', clamp(sPress, 0, 1).toFixed(3));
+}
 let last = performance.now();
 (function loop(now) {
   const dt = Math.min(.05, (now - last) / 1000 || .016); last = now;
@@ -201,7 +226,7 @@ let last = performance.now();
   // Границы бара (843×190): капля не выходит за них — упирается и мягко сплющивается о стенку
   const K = 6, sm = (v, m) => v <= m - K ? v : m - K * Math.exp(-(v - (m - K)) / K); // мягкий упор
   let sxv = s * (1 + st), syv = sy * (1 - st * .5);
-  const h0 = 165 * syv, h1 = sm(h0, 190);          // сверху/снизу: не выше бара, лишнее уходит в ширину
+  const h0 = 165 * syv, h1 = sm(h0, 206);          // сверху/снизу: может выступать за бар лишь чуть-чуть (до 206), остальное уходит в ширину
   sxv *= Math.sqrt(h0 / h1); syv = h1 / 165;
   const cx = 12 + cur * 273 + 136.5, w0 = 273 * sxv;
   const Lc = -sm(-(cx - w0 / 2), 0), Rc = sm(cx + w0 / 2, 843); // слева/справа: упор в края
@@ -209,6 +234,7 @@ let last = performance.now();
   bar.style.setProperty('--sx', ((Rc - Lc) / 273).toFixed(4));
   bar.style.setProperty('--sy', syv.toFixed(4));
   bar.style.setProperty('--p', clamp(g, 0, 1).toFixed(3));
+  searchStep(dt);
   requestAnimationFrame(loop);
 })(performance.now());
 
