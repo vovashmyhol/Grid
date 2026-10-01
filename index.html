@@ -40,10 +40,36 @@ html,body{height:100%;background:#000;overflow:hidden;color:#fff;font-family:-ap
 .av svg{width:100%;height:100%;display:block}
 .av.has svg{display:none}
 .tab.on .av{box-shadow:0 0 0 calc(3*var(--u)) var(--blue)}
+.gb{position:relative;translate:var(--ox,0px) var(--oy,0px);scale:var(--cx,1) var(--cy,1);touch-action:none;cursor:grab}
+.gb>.gc{opacity:calc(1 - var(--sp,0))}
+.view{position:fixed;inset:0;padding:calc(env(safe-area-inset-top,0px) + 14px) 16px 0;opacity:0;visibility:hidden;transition:opacity .25s,visibility .25s}
+.view.on{opacity:1;visibility:visible}
+.hdr{position:relative;display:flex;justify-content:space-between;align-items:center}
+.hdr h1{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:17px;font-weight:600;pointer-events:none}
+.pill{height:43px;padding:0 20px;display:grid;place-items:center;font-size:17px;font-weight:600;white-space:nowrap}
+.pill .gc,.pill .sclone{line-height:1;padding-bottom:1px}
+.sq{width:43px;height:43px;display:grid;place-items:center}
+.sq svg{width:20px;height:20px;display:block}
+.field{margin-top:14px;height:43px;border-radius:999px;background:#1c1c1e;display:flex;align-items:center;justify-content:center;gap:8px;color:#8e8e93;font-size:17px}
+.field svg{width:18px;height:18px}
+.invite{margin-top:26px;padding:0 4px;display:flex;align-items:center;gap:18px;color:var(--blue);font-size:20px}
+.invite svg{width:30px;height:30px}
+.glass.soft{border:1px solid rgba(255,255,255,.02);box-shadow:0 6px 16px rgba(0,0,0,.4)}
+.glass.soft::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;box-shadow:inset 0 7px 8px -6px rgba(255,255,255,.007),inset 0 -7px 8px -6px rgba(255,255,255,.005)}
+.soft .lens{background:#262626}
 </style>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
+<section class="view" id="v0">
+  <header class="hdr">
+    <div class="matte gb pill" id="sortBtn"><span class="gc">Сортировка</span><div class="glass soft sthumb"><div class="lens" id="lensSort" data-soft="1"></div></div></div>
+    <h1>Контакты</h1>
+    <div class="matte gb sq" id="plusBtn"><svg class="gc" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2v16M2 10h16"/></svg><div class="glass soft sthumb"><div class="lens" id="lensPlus" data-soft="1"></div></div></div>
+  </header>
+  <div class="field"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><circle cx="11.5" cy="11.5" r="8"/><path d="M17.5 17.5L25 25"/></svg>Поиск</div>
+  <div class="invite"><svg viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="16" cy="9" r="5.2"/><path d="M15.5 24.6c4.6.6 9-1 8.2-5-.6-2.6-3.4-3.8-7.7-3.6M3.5 24h8M7.5 20v8"/></svg>Пригласить</div>
+</section>
 <div class="dock">
   <div class="bar" id="bar" style="--x:1;--tx:0;--sx:1;--sy:1;--p:0">
     <div class="matte base" id="base"></div>
@@ -115,23 +141,24 @@ function maps(w, h, r, B, p, mx) {
 function filterFor(el, id) {
   const w = el.offsetWidth, h = el.offsetHeight;
   if (w < 2 || h < 2) return '';
-  const r = h / 2, B = Math.min(h * .34, r - 1), p = profile(h * .42, B, 1.9);
+  const soft = !!el.dataset.soft, r = h / 2, B = Math.min(h * (soft ? .15 : .34), r - 1), p = profile(h * (soft ? .2 : .42), B, soft ? 1.5 : 1.9);
   const mx = Math.max(...Array.from(p, Math.abs)) || 1, [disp, spec] = maps(w, h, r, B, p, mx);
   return `<filter id="${id}" x="0%" y="0%" width="100%" height="100%">
 <feGaussianBlur in="SourceGraphic" stdDeviation="0.2" result="bl"/>
 <feImage href="${disp}" x="0" y="0" width="${w}" height="${h}" result="dm"/>
-<feDisplacementMap in="bl" in2="dm" scale="${mx * .4}" xChannelSelector="R" yChannelSelector="G" result="dp"/>
+<feDisplacementMap in="bl" in2="dm" scale="${mx * (soft ? .1 : .4)}" xChannelSelector="R" yChannelSelector="G" result="dp"/>
 <feColorMatrix in="dp" type="saturate" values="5" result="ds"/>
 <feImage href="${spec}" x="0" y="0" width="${w}" height="${h}" result="sl"/>
 <feComposite in="ds" in2="sl" operator="in" result="sm"/>
-<feComponentTransfer in="sl" result="sf"><feFuncA type="linear" slope="1"/></feComponentTransfer>
+<feComponentTransfer in="sl" result="sf"><feFuncA type="linear" slope="${soft ? 0 : 1}"/></feComponentTransfer>
 <feBlend in="sm" in2="dp" mode="normal" result="ws"/>
 <feBlend in="sf" in2="ws" mode="normal"/></filter>`;
 }
 const isChromium = /Chrome\//.test(navigator.userAgent) && !/CriOS|FxiOS|EdgiOS/.test(navigator.userAgent);
 const $ = id => document.getElementById(id);
 const bar = $('bar'), base = $('base'), thumb = $('thumb'), search = $('search');
-const lens = $('lens'), slens = $('slens'), glassEls = [[lens, 'lg-thumb'], [slens, 'lg-search']];
+const lens = $('lens'), slens = $('slens'), lensSort = $('lensSort'), lensPlus = $('lensPlus'), glassEls = [[lens, 'lg-thumb'], [slens, 'lg-search'], [lensSort, 'lg-sort'], [lensPlus, 'lg-plus']];
+[['lensSort', 'sortBtn'], ['lensPlus', 'plusBtn']].forEach(([l, b]) => $(l).innerHTML = '<div class="sclone">' + $(b).querySelector('.gc').outerHTML + '</div>');
 slens.innerHTML = '<div class="sclone">' + search.querySelector('svg').outerHTML + '</div>';
 function rebuild() {
   $('defs').innerHTML = glassEls.map(([el, id]) => filterFor(el, id)).join('');
@@ -148,9 +175,9 @@ const clone = tabsEl.cloneNode(true); clone.removeAttribute('id'); clone.setAttr
 clone.querySelectorAll('button').forEach(b => b.tabIndex = -1); lens.appendChild(clone);
 const cloneTabs = [...clone.children];
 let cur = 1, vel = 0, target = 1, press = 0, pvel = 0, down = false, grab = 0, active = 1;
-let pRaw = 1, pT = 0, pV = 0, mv = 0, mvv = 0, wasMoving = false; // скорость пальца (в табах/сек)
+let pRaw = 1, pT = 0, pV = 0, mv = 0, mvv = 0, wasMoving = false, lag = 1, lagv = 0; // скорость пальца (в табах/сек)
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-function setActive(i) { if (i === active) return; active = i; [tabs, cloneTabs].forEach(arr => arr.forEach((el, n) => el.classList.toggle('on', n === i))); }
+function setActive(i) { if (i === active) return; active = i; $('v0').classList.toggle('on', i === 0); [tabs, cloneTabs].forEach(arr => arr.forEach((el, n) => el.classList.toggle('on', n === i))); }
 function ptr(e) {
   const rc = tabsEl.getBoundingClientRect(), w = tabs[0].offsetWidth, pad = (rc.width - w * 3) / 2;
   return (e.clientX - rc.left - pad) / w;
@@ -177,64 +204,75 @@ bar.addEventListener('pointermove', e => { if (down) place(ptr(e), e.timeStamp);
   vel += pV * .15;                              // импульс при отпускании
 }));
 tabs.forEach((el, n) => el.addEventListener('click', e => { if (e.detail === 0) { target = n; setActive(n); } }));
-// Кнопка поиска: «тугая» жидкая капля — тянется с сопротивлением, увеличивается при зажатии, пружинит назад
+// Стеклянные кнопки: «тугая» жидкая капля — тянется с сопротивлением, растёт при зажатии, пружинит назад
 const sU = () => search.offsetWidth / 191;
-let sx0 = 0, sy0 = 0, sd = false, sox = 0, soy = 0, svx = 0, svy = 0, stx = 0, sty = 0, sPress = 0, sPv = 0;
-const soft = (d, L) => L * Math.tanh(d / (L * 3.4)); // чем дальше тянешь, тем туже
-search.addEventListener('pointerdown', e => { search.setPointerCapture(e.pointerId); sd = true; sx0 = e.clientX; sy0 = e.clientY; stx = sty = 0; });
-search.addEventListener('pointermove', e => { if (!sd) return; const L = 70 * sU(); stx = soft(e.clientX - sx0, L); sty = soft(e.clientY - sy0, L); });
-['pointerup', 'pointercancel'].forEach(n => search.addEventListener(n, () => { sd = false; stx = sty = 0; }));
-function searchStep(dt) {
-  const k = sd ? 260 : 150, c = sd ? 24 : 9, n = 4, h = dt / n;
-  for (let i = 0; i < n; i++) {
-    svx += (-k * (sox - stx) - c * svx) * h; sox += svx * h;
-    svy += (-k * (soy - sty) - c * svy) * h; soy += svy * h;
-    sPv += (-230 * (sPress - (sd ? 1 : 0)) - 16 * sPv) * h; sPress += sPv * h;
-  }
-  const L = 70 * sU(), ax = Math.min(1.3, Math.abs(sox) / L), ay = Math.min(1.3, Math.abs(soy) / L), sc = 1 + .14 * sPress;
-  search.style.setProperty('--ox', sox.toFixed(2) + 'px');
-  search.style.setProperty('--oy', soy.toFixed(2) + 'px');
-  search.style.setProperty('--cx', (sc * (1 + .14 * ax - .07 * ay)).toFixed(4));
-  search.style.setProperty('--cy', (sc * (1 + .14 * ay - .07 * ax)).toFixed(4));
-  search.style.setProperty('--sp', clamp(sPress, 0, 1).toFixed(3));
+function glassBtn(el, getL, always, mv = 1) { // mv — какая доля смещения реально двигает кнопку (деформация не зависит)
+  let x0 = 0, y0 = 0, d = false, ox = 0, oy = 0, vx = 0, vy = 0, tx = 0, ty = 0, pr = 0, pv = 0;
+  const soft = (v, L) => L * Math.tanh(v / (L * 3.4)); // чем дальше тянешь, тем туже
+  el.addEventListener('pointerdown', e => { el.setPointerCapture(e.pointerId); d = true; x0 = e.clientX; y0 = e.clientY; tx = ty = 0; });
+  el.addEventListener('pointermove', e => { if (!d) return; const L = getL(); tx = soft(e.clientX - x0, L); ty = soft(e.clientY - y0, L); });
+  ['pointerup', 'pointercancel'].forEach(n => el.addEventListener(n, () => { d = false; tx = ty = 0; }));
+  return dt => {
+    const k = d ? 260 : 150, c = d ? 24 : 9, n = 4, h = dt / n;
+    for (let i = 0; i < n; i++) {
+      vx += (-k * (ox - tx) - c * vx) * h; ox += vx * h;
+      vy += (-k * (oy - ty) - c * vy) * h; oy += vy * h;
+      pv += (-230 * (pr - (d ? 1 : 0)) - 16 * pv) * h; pr += pv * h;
+    }
+    const L = getL(), ax = Math.min(1.3, Math.abs(ox) / L), ay = Math.min(1.3, Math.abs(oy) / L), sc = 1 + .14 * pr;
+    el.style.setProperty('--ox', (ox * mv).toFixed(2) + 'px');
+    el.style.setProperty('--oy', (oy * mv).toFixed(2) + 'px');
+    el.style.setProperty('--cx', (sc * (1 + .14 * ax - .07 * ay)).toFixed(4));
+    el.style.setProperty('--cy', (sc * (1 + .14 * ay - .07 * ax)).toFixed(4));
+    el.style.setProperty('--sp', always ? 1 : clamp(pr, 0, 1).toFixed(3)); // always — стекло включено постоянно
+  };
 }
+const btnSteps = [glassBtn(search, () => 70 * sU()), glassBtn($('sortBtn'), () => 24, true, .12), glassBtn($('plusBtn'), () => 24, true, .12)];
 let last = performance.now();
 (function loop(now) {
   const dt = Math.min(.05, (now - last) / 1000 || .016); last = now;
   // пружины: на пальце — мягкое следование, после отпускания — недодемпфированная (с перелётом и покачиванием)
-  const k = down ? 240 : 170, c = down ? 26 : 14.5, pk = 230, pc = 15;
+  const k = down ? 240 : 170, c = down ? 26 : 17, pk = 230, pc = 15;
   const n = 4, h = dt / n;
   for (let i = 0; i < n; i++) {
     vel += (-k * (cur - target) - c * vel) * h; cur += vel * h;
     pvel += (-pk * (press - (down ? 1 : 0)) - pc * pvel) * h; press += pvel * h;
+    lagv += (-190 * (lag - cur) - 10 * lagv) * h; lag += lagv * h; // «отстающее» тело капли
   }
   // без зажатия: пока капля едет, она раздувается ровно до краёв бара (297×190 при исходных 273×165)
   const moving = Math.abs(cur - target) > .1 || Math.abs(vel) > .9;
   { // критически задемпфированная пружина: мягкий старт и мягкая остановка, без рывка и перелёта
     // капля «приехала»: толчок наружу — она на миг раздувается чуть шире краёв бара,
     // затем с покачиванием (недодемпфированная пружина) возвращается и даже чуть недотягивает до нормы
-    if (wasMoving && !moving && !down) mvv += 17;
+    if (wasMoving && !moving && !down) mvv += 12;
     wasMoving = moving;
     const mk = moving ? 380 : 900, mc = 2 * Math.sqrt(mk) * (moving ? 1 : .75);
     for (let i = 0; i < 4; i++) { mvv += (-mk * (mv - (moving ? 1 : 0)) - mc * mvv) * (dt / 4); mv += mvv * (dt / 4); }
     mv = clamp(mv, -.2, 1.6);
   }
   const g = (mv < 0 && press < .02) ? mv : Math.max(mv, press);
-  const st = clamp(Math.abs(vel) * .03, 0, .15) * (down ? 1 : .45);  // растяжение по скорости
+  const st = clamp(Math.abs(vel) * .03, 0, .15) * (down ? 1 : .3);  // растяжение по скорости
   const s = 1 + .088 * g + .082 * press, sy = 1 + .152 * g + .088 * press; // до краёв бара; при зажатии — ещё больше
   bar.style.setProperty('--x', cur.toFixed(4));
-  // Границы бара (843×190): капля не выходит за них — упирается и мягко сплющивается о стенку
-  const K = 6, sm = (v, m) => v <= m - K ? v : m - K * Math.exp(-(v - (m - K)) / K); // мягкий упор
-  let sxv = s * (1 + st), syv = sy * (1 - st * .5);
-  const h0 = 165 * syv, h1 = sm(h0, 206);          // сверху/снизу: может выступать за бар лишь чуть-чуть (до 206), остальное уходит в ширину
+  // Границы бара (843×190): капля может чуть выйти за них, дальше — мягкий «подушечный» упор:
+  // деформация начинается заранее и нарастает плавно, об стенку она сплющивается и разбухает по высоте
+  const sm = (v, m, K) => v <= m - K ? v : m - K * Math.exp(-(v - (m - K)) / K);
+  const cx = 12 + cur * 273 + 136.5;
+  const horiz = w => [-sm(-(cx - w / 2), 15, 22), sm(cx + w / 2, 858, 22)];
+  const jel = clamp(cur - lag, -.35, .35);                    // желе: тянется на ходу, при остановке качнётся и успокоится — даже без удара о стенку
+  let sxv = s * (1 + st) * (1 + .3 * jel), syv = sy * (1 - st * .5) * (1 - .15 * jel);
+  let [Lc, Rc] = horiz(273 * sxv);
+  const cmp = Math.max(0, 1 - (Rc - Lc) / (273 * sxv));      // насколько сжало о стенку
+  vel *= 1 - Math.min(.4, cmp * 6 * dt);                      // стенка гасит скорость (мягкая подушка)
+  syv *= 1 + .45 * cmp;                                       // сжало по ширине — раздалось по высоте
+  const h0 = 165 * syv, h1 = sm(h0, 206, 14);                 // сверху/снизу: выступ до 206, остальное в ширину
   sxv *= Math.sqrt(h0 / h1); syv = h1 / 165;
-  const cx = 12 + cur * 273 + 136.5, w0 = 273 * sxv;
-  const Lc = -sm(-(cx - w0 / 2), 0), Rc = sm(cx + w0 / 2, 843); // слева/справа: упор в края
+  [Lc, Rc] = horiz(273 * sxv);
   bar.style.setProperty('--tx', ((Lc + Rc) / 2 - cx).toFixed(3));
   bar.style.setProperty('--sx', ((Rc - Lc) / 273).toFixed(4));
   bar.style.setProperty('--sy', syv.toFixed(4));
   bar.style.setProperty('--p', clamp(g, 0, 1).toFixed(3));
-  searchStep(dt);
+  btnSteps.forEach(f => f(dt));
   requestAnimationFrame(loop);
 })(performance.now());
 
