@@ -6,11 +6,11 @@
 <title>Liquid Glass Tab Bar</title>
 <meta name="theme-color" content="#000000">
 <style>
-:root{--u:min(.46px,calc((100vw - 24px)/1058));--blue:#4f83f1;--top:calc(max(env(safe-area-inset-top,0px),var(--tg-safe-area-inset-top,0px)) + var(--tg-content-safe-area-inset-top,0px));--pl:max(16px,env(safe-area-inset-left,0px));--pr:max(16px,env(safe-area-inset-right,0px));--hh:43px;--gap-top:clamp(26px,5vh,44px);--bot:max(env(safe-area-inset-bottom,0px),var(--tg-safe-area-inset-bottom,0px));color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root{--u:min(.46px,calc((100vw - 24px)/1058));--blue:#4f83f1;--top:calc(max(env(safe-area-inset-top,0px),var(--tg-safe-area-inset-top,0px)) + var(--tg-content-safe-area-inset-top,0px));--pl:max(16px,env(safe-area-inset-left,0px));--pr:max(16px,env(safe-area-inset-right,0px));--hh:43px;--gap-top:6px;--bot:max(env(safe-area-inset-bottom,0px),var(--tg-safe-area-inset-bottom,0px));color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;background:#000;overflow:hidden;overscroll-behavior:none;color:#fff;font-family:-apple-system,"SF Pro Text",Inter,system-ui,"Segoe UI",sans-serif;user-select:none;-webkit-user-select:none}
-.dock{position:fixed;left:0;right:0;bottom:calc(var(--bot) + 28px);display:flex;justify-content:center;gap:calc(24*var(--u))}
+.dock{position:fixed;left:0;right:0;bottom:calc(var(--bot) + 12px);display:flex;justify-content:center;gap:calc(24*var(--u))}
 .matte{border-radius:999px;background:rgba(38,38,38,.3);-webkit-backdrop-filter:blur(6px) saturate(1.8);backdrop-filter:blur(6px) saturate(1.8);border:1px solid rgba(255,255,255,.13);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 8px 24px rgba(0,0,0,.25)}
 .hbtn{background:linear-gradient(180deg,rgba(50,50,50,.5) 0,rgba(38,38,38,.3) 14%,rgba(37,37,37,.3) 84%,rgba(46,46,46,.45) 100%);border:0;
   box-shadow:inset 0 1px 0 -.5px rgba(255,255,255,.26),inset 0 -1px 0 -.5px rgba(255,255,255,.26),inset 0 3px 3px -2px rgba(255,255,255,.08),inset 0 -3px 3px -2px rgba(255,255,255,.06)}
@@ -50,7 +50,7 @@ html,body{height:100%;background:#000;overflow:hidden;overscroll-behavior:none;c
 .view>.hdr{position:absolute;z-index:2;top:calc(var(--top) + var(--gap-top));left:var(--pl);right:var(--pr);height:var(--hh);pointer-events:none}
 .view>.hdr>.gb{pointer-events:auto}
 .hdr h1{text-shadow:0 0 8px #000,0 0 3px #000}
-.list{position:absolute;inset:0;padding:calc(var(--top) + var(--gap-top) + var(--hh)) var(--pr) calc(190*var(--u) + var(--bot) + 56px) var(--pl);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+.list{position:absolute;inset:0;padding:calc(var(--top) + var(--gap-top) + var(--hh)) var(--pr) calc(190*var(--u) + var(--bot) + 40px) var(--pl);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
 .list::-webkit-scrollbar{display:none}
 .sec{padding:14px 0 6px;font-size:14px;font-weight:600;color:#8e8e93}
 .row{display:flex;align-items:center;gap:12px;height:62px;position:relative}
@@ -76,7 +76,7 @@ html,body{height:100%;background:#000;overflow:hidden;overscroll-behavior:none;c
 #slens{background:rgba(90,90,90,.3)}
 @media(max-width:360px){.hdr h1{position:static;transform:none;flex:1;min-width:0;padding:0 8px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
 @media(max-width:340px){.pill{padding:0 12px;font-size:16px}.hdr h1{font-size:16px}:root{--pl:12px;--pr:12px}.invite{font-size:18px}}
-@media(max-height:520px){.dock{bottom:calc(var(--bot) + 12px)}}
+@media(max-height:520px){.dock{bottom:calc(var(--bot) + 6px)}}
 </style>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
