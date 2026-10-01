@@ -11,15 +11,19 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;background:#000;overflow:hidden;overscroll-behavior:none;color:#fff;font-family:-apple-system,"SF Pro Text",Inter,system-ui,"Segoe UI",sans-serif;user-select:none;-webkit-user-select:none}
 .dock{position:fixed;left:0;right:0;bottom:calc(var(--bot) + 12px);display:flex;justify-content:center;gap:calc(24*var(--u))}
-.matte{border-radius:999px;background:rgba(38,38,38,.3);-webkit-backdrop-filter:blur(6px) saturate(1.8);backdrop-filter:blur(6px) saturate(1.8);border:1px solid rgba(255,255,255,.13);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 8px 24px rgba(0,0,0,.25)}
-.hbtn{background:linear-gradient(180deg,rgba(50,50,50,.5) 0,rgba(38,38,38,.3) 14%,rgba(37,37,37,.3) 84%,rgba(46,46,46,.45) 100%);border:0;
-  box-shadow:inset 0 1px 0 -.5px rgba(255,255,255,.26),inset 0 -1px 0 -.5px rgba(255,255,255,.26),inset 0 3px 3px -2px rgba(255,255,255,.08),inset 0 -3px 3px -2px rgba(255,255,255,.06)}
+.matte{border-radius:999px;background:rgba(39,39,39,.88);-webkit-backdrop-filter:blur(8px) saturate(1.8);backdrop-filter:blur(8px) saturate(1.8);border:0;
+  box-shadow:inset 0 0 8px rgba(255,255,255,.05),0 8px 24px rgba(0,0,0,.3)}
+/* кантик: ярче на ровных верхе и низе, к скруглённым краям угасает; по бокам почти нет */
+.matte::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:2px;pointer-events:none;filter:blur(.7px);
+  background:linear-gradient(90deg,rgba(255,255,255,.03) 0,rgba(255,255,255,.14) 16%,rgba(255,255,255,.25) 36%,rgba(255,255,255,.27) 50%,rgba(255,255,255,.25) 64%,rgba(255,255,255,.14) 84%,rgba(255,255,255,.03) 100%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
+.hbtn{background:rgba(39,39,39,.88)}
 .glass{border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.25);box-shadow:inset 0 0 16px -4px rgba(255,255,255,.45),0 10px 26px rgba(0,0,0,.4)}
 .solid{background:rgba(255,255,255,.16);border-radius:999px;opacity:clamp(0,calc(1 - var(--p)*4),1);will-change:transform,opacity;backface-visibility:hidden}
 .thumb{opacity:clamp(0,calc(var(--p)*4),1);overflow:hidden;will-change:transform,opacity;backface-visibility:hidden}
-.lens{position:absolute;inset:0;border-radius:inherit;overflow:hidden;background:#3c3c3c}
+.lens{position:absolute;inset:0;border-radius:inherit;overflow:hidden;background:#454545}
 .lens .tabs{inset:auto;left:calc(-12*var(--u) - var(--x)*273*var(--u) - var(--tx)*var(--u) - 1px);top:calc(-12*var(--u) - 1px);width:calc(843*var(--u));height:calc(190*var(--u))}
-.lens .gap,.lens .tab.on .gap{stroke:#3c3c3c}
+.lens .gap,.lens .tab.on .gap{stroke:#454545}
 .fb{-webkit-backdrop-filter:blur(3px) saturate(1.4);backdrop-filter:blur(3px) saturate(1.4)}
 .bar{position:relative;width:calc(843*var(--u));height:calc(190*var(--u));touch-action:none;cursor:grab}
 .bar.down{cursor:grabbing}
@@ -74,6 +78,18 @@ html,body{height:100%;background:#000;overflow:hidden;overscroll-behavior:none;c
 .glass.soft::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;box-shadow:inset 0 7px 8px -6px rgba(255,255,255,.007),inset 0 -7px 8px -6px rgba(255,255,255,.005)}
 .soft .lens{background:transparent}
 #slens{background:rgba(90,90,90,.3)}
+.scrim{position:fixed;inset:0;z-index:9;display:none;touch-action:none}
+.scrim.on{display:block}
+.menu{position:fixed;z-index:10;width:min(233px,calc(100vw - 32px));padding:9px 0;border-radius:26px;touch-action:none;
+  background:rgba(36,36,36,.72);-webkit-backdrop-filter:blur(20px) saturate(1.8);backdrop-filter:blur(20px) saturate(1.8);
+  box-shadow:inset 0 0 8px rgba(255,255,255,.05),0 16px 44px rgba(0,0,0,.55);
+  opacity:0;visibility:hidden;transform:scale(.55);
+  transition:transform .17s ease-in,opacity .14s,visibility .14s}
+.menu.on{opacity:1;visibility:visible;transform:none;transition:transform .34s cubic-bezier(.2,1.3,.35,1),opacity .16s,visibility 0s}
+.mi{position:relative;height:44px;margin:0 8px;padding-left:53px;display:flex;align-items:center;border-radius:18px;font-size:17px;color:#fff;white-space:nowrap;transition:background .12s}
+.mi.hl{background:rgba(255,255,255,.14)}
+.mi .ck{position:absolute;left:21px;top:50%;width:15px;height:15px;margin-top:-7.5px;opacity:0}
+.mi.sel .ck{opacity:1}
 @media(max-width:360px){.hdr h1{position:static;transform:none;flex:1;min-width:0;padding:0 8px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
 @media(max-width:340px){.pill{padding:0 12px;font-size:16px}.hdr h1{font-size:16px}:root{--pl:12px;--pr:12px}.invite{font-size:18px}}
 @media(max-height:520px){.dock{bottom:calc(var(--bot) + 6px)}}
@@ -117,6 +133,11 @@ html,body{height:100%;background:#000;overflow:hidden;overscroll-behavior:none;c
     <svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><circle cx="11.5" cy="11.5" r="8"/><path d="M17.5 17.5L25 25"/></svg>
     <div class="glass sthumb"><div class="lens" id="slens"></div></div>
   </div>
+</div>
+<div class="scrim" id="scrim"></div>
+<div class="matte menu" id="menu" role="menu" aria-label="Сортировка">
+  <div class="mi sel" role="menuitemradio" aria-checked="true" data-mode="time"><svg class="ck" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 8.5l4 4 9-10"/></svg>по времени захода</div>
+  <div class="mi" role="menuitemradio" aria-checked="false" data-mode="name"><svg class="ck" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 8.5l4 4 9-10"/></svg>по имени</div>
 </div>
 <svg width="0" height="0" style="position:absolute" color-interpolation-filters="sRGB"><defs id="defs"></defs></svg>
 <script>
@@ -314,17 +335,74 @@ const CONTACTS = [
   ['Сергей Кузнецов','был(а) недавно'],['София Миронова','в сети'],['Татьяна Белова','был(а) вчера'],['Юлия Рябова','был(а) недавно'],['Ярослав Комаров','был(а) давно']
 ];
 const AV_COLORS = [['#ff885e','#ff516a'],['#ffcd6a','#ffa85c'],['#82b1ff','#665fff'],['#a0de7e','#54cb68'],['#53edd6','#28c9b7'],['#72d5fd','#2a9ef1'],['#e0a2f3','#d669ed']];
-(function renderContacts() {
+// Порядок «по времени захода»: чем меньше число, тем свежее был(а) в сети
+const lastSeenRank = st => st === 'в сети' ? 0 : /(\d+) минут/.test(st) ? +RegExp.$1 : /(\d+) час/.test(st) ? +RegExp.$1 * 60 : /в \d+:\d+/.test(st) ? 300 : st.includes('недавно') ? 1000 : st.includes('вчера') ? 2000 : st.includes('неделе') ? 3000 : 9000;
+const NAME_ORDER = CONTACTS.slice().sort((a, b) => a[0].localeCompare(b[0], 'ru'));
+let sortMode = 'time';
+function renderContacts(mode) {
   const esc = t => t.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const list = mode === 'name' ? NAME_ORDER : CONTACTS.slice().sort((a, b) => lastSeenRank(a[1]) - lastSeenRank(b[1]) || a[0].localeCompare(b[0], 'ru'));
   let html = '', letter = '';
-  CONTACTS.slice().sort((a, b) => a[0].localeCompare(b[0], 'ru')).forEach(([name, status], i) => {
-    const L = name[0].toUpperCase();
-    if (L !== letter) { letter = L; html += `<div class="sec">${L}</div>`; }
+  list.forEach(c => {
+    const [name, status] = c;
+    if (mode === 'name') { const L = name[0].toUpperCase(); if (L !== letter) { letter = L; html += `<div class="sec">${L}</div>`; } }
     const ini = name.split(' ').map(w => w[0]).join('').slice(0, 2);
-    const [c1, c2] = AV_COLORS[i % AV_COLORS.length];
+    const [c1, c2] = AV_COLORS[NAME_ORDER.indexOf(c) % AV_COLORS.length];
     html += `<div class="row"><div class="ca" style="background:linear-gradient(180deg,${c1},${c2})">${esc(ini)}</div><div class="ri"><div class="rn">${esc(name)}</div><div class="rs${status === 'в сети' ? ' on' : ''}">${esc(status)}</div></div></div>`;
   });
   $('contacts').innerHTML = html;
+  $('list').scrollTop = 0;
+}
+renderContacts(sortMode);
+
+// Вибрация: в Telegram — через HapticFeedback, в обычном браузере (Android) — navigator.vibrate
+const hap = (() => {
+  const w = window.Telegram && Telegram.WebApp, hf = w && w.platform && w.platform !== 'unknown' && w.HapticFeedback;
+  const buzz = ms => { try { navigator.vibrate && navigator.vibrate(ms); } catch (e) {} };
+  return {
+    impact: s => { try { hf ? hf.impactOccurred(s) : buzz(s === 'medium' ? 18 : 10); } catch (e) {} },
+    select: () => { try { hf ? hf.selectionChanged() : buzz(6); } catch (e) {} }
+  };
+})();
+
+// Меню сортировки
+(function sortMenu() {
+  const menu = $('menu'), scrim = $('scrim'), items = [...menu.querySelectorAll('.mi')], btn = $('sortBtn');
+  let open = false, hl = -1, pressed = false;
+  function show() {
+    const r = btn.getBoundingClientRect();
+    menu.style.left = Math.max(8, r.left) + 'px';
+    menu.style.top = (r.bottom + 10) + 'px';
+    menu.style.transformOrigin = (r.left + r.width / 2 - Math.max(8, r.left)) + 'px -10px';
+    open = true; menu.classList.add('on'); scrim.classList.add('on');
+    hap.impact('medium');
+  }
+  function hide() { open = false; menu.classList.remove('on'); scrim.classList.remove('on'); setHl(-1, true); }
+  function setHl(i, quiet) {
+    if (i === hl) return;
+    const first = hl === -1; hl = i;
+    items.forEach((el, n) => el.classList.toggle('hl', n === i));
+    if (i >= 0 && !first && !quiet) hap.select(); // вибро-«щелчок» при переходе пальца между пунктами
+  }
+  const itemAt = e => {
+    const m = menu.getBoundingClientRect();
+    if (e.clientX < m.left || e.clientX > m.right) return -1;
+    return items.findIndex(el => { const r = el.getBoundingClientRect(); return e.clientY >= r.top && e.clientY <= r.bottom; });
+  };
+  function choose(i) {
+    sortMode = items[i].dataset.mode;
+    items.forEach((el, n) => { el.classList.toggle('sel', n === i); el.setAttribute('aria-checked', n === i); });
+    hap.impact('light');
+    renderContacts(sortMode);
+    setTimeout(hide, 140);
+  }
+  btn.addEventListener('click', () => open ? hide() : show());
+  scrim.addEventListener('click', hide);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && open) hide(); });
+  menu.addEventListener('pointerdown', e => { pressed = true; menu.setPointerCapture(e.pointerId); setHl(itemAt(e)); });
+  menu.addEventListener('pointermove', e => { if (pressed) setHl(itemAt(e)); });
+  menu.addEventListener('pointerup', e => { if (!pressed) return; pressed = false; const i = itemAt(e); if (i >= 0) choose(i); else setHl(-1, true); });
+  menu.addEventListener('pointercancel', () => { pressed = false; setHl(-1, true); });
 })();
 
 // Не даём Telegram сворачивать мини-апп свайпом вниз
