@@ -20,14 +20,15 @@ html,body{height:100%;background:#000;overflow:hidden;overscroll-behavior:none;c
 .hbtn{background:rgba(60,60,60,.62)}
 .glass{border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.25);box-shadow:inset 0 0 16px -4px rgba(255,255,255,.45),0 10px 26px rgba(0,0,0,.4)}
 .solid{background:rgba(255,255,255,.16);border-radius:999px;opacity:clamp(0,calc(1 - var(--p)*4),1);will-change:transform,opacity;backface-visibility:hidden}
-.thumb{opacity:clamp(0,calc(var(--p)*4),1);overflow:hidden;will-change:transform,opacity;backface-visibility:hidden}
-.lens{position:absolute;inset:0;border-radius:inherit;overflow:hidden;background:#474747}
-.lens .tabs{inset:auto;left:calc(-12*var(--u) - var(--x)*273*var(--u) - var(--tx)*var(--u) - 1px);top:calc(-12*var(--u) - 1px);width:calc(843*var(--u));height:calc(190*var(--u))}
-.lens .gap,.lens .tab.on .gap{stroke:#474747}
+.thumb{border:1px solid rgba(255,255,255,.1);box-shadow:0 calc(6px + var(--p)*10px) calc(18px + var(--p)*20px) rgba(0,0,0,calc(.3 + var(--p)*.25));opacity:clamp(0,calc(var(--p)*4),1);overflow:hidden;will-change:transform,opacity;backface-visibility:hidden}
+.lens{position:absolute;inset:0;border-radius:inherit;overflow:hidden;background:#2b2b2b;box-shadow:inset 0 0 calc(22*var(--u)) calc(3*var(--u)) rgba(0,0,0,.6)}
+.lens .tabs{inset:auto;left:calc(-22.5*var(--u) - var(--x)*273*var(--u) - var(--tx)*var(--u) - 1px);top:calc(-12*var(--u) - 1px);width:calc(843*var(--u));height:calc(190*var(--u))}
+.lens .gap,.lens .tab.on .gap{stroke:#2b2b2b}
 .fb{-webkit-backdrop-filter:blur(3px) saturate(1.4);backdrop-filter:blur(3px) saturate(1.4)}
 .bar{position:relative;width:calc(843*var(--u));height:calc(190*var(--u));touch-action:none;cursor:grab}
 .bar.down{cursor:grabbing}
 .base{position:absolute;inset:0}
+.fil{position:absolute;left:calc(-60*var(--u));top:calc(-40*var(--u));width:calc(963*var(--u));height:calc(270*var(--u));pointer-events:none;background:rgba(60,60,60,.62);-webkit-backdrop-filter:blur(8px) saturate(1.8);backdrop-filter:blur(8px) saturate(1.8);clip-path:path('M0 0 Z')}
 .circle{position:relative;width:calc(191*var(--u));height:calc(191*var(--u));display:grid;place-items:center;cursor:grab;color:#fff;touch-action:none;translate:var(--ox,0px) var(--oy,0px);scale:var(--cx,1) var(--cy,1)}
 .circle>.ics{opacity:calc(1 - var(--sp,0))}
 .ics{display:grid;place-items:center}
@@ -35,7 +36,7 @@ html,body{height:100%;background:#000;overflow:hidden;overscroll-behavior:none;c
 .sthumb{position:absolute;inset:0;overflow:hidden;opacity:var(--sp,0);pointer-events:none}
 .sclone{position:absolute;inset:0;display:grid;place-items:center;color:#fff}
 .circle svg{height:calc(70*var(--u));width:auto}
-.thumb,.solid{position:absolute;top:calc(12*var(--u));left:calc(12*var(--u) + var(--x)*273*var(--u));width:calc(273*var(--u));height:calc(165*var(--u));translate:calc(var(--tx)*var(--u)) 0;scale:var(--sx) var(--sy);pointer-events:none}
+.thumb,.solid{position:absolute;top:calc(12*var(--u));left:calc(22.5*var(--u) + var(--x)*273*var(--u));width:calc(252*var(--u));height:calc(165*var(--u));translate:calc(var(--tx)*var(--u)) 0;scale:var(--sx) var(--sy);pointer-events:none}
 .tabs{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,calc(273*var(--u)));padding:0 calc(12*var(--u));pointer-events:none}
 .tab{all:unset;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:calc(10*var(--u));font-size:calc(30*var(--u));font-weight:600;line-height:1.2;color:#fff;transition:color .25s;pointer-events:auto}
 .bar>.tabs>.tab.on>*{opacity:clamp(0,calc(1 - var(--p)*4),1)}
@@ -280,6 +281,7 @@ html,body{height:100%;background:#000;overflow:hidden;overscroll-behavior:none;c
 <div class="dock">
   <div class="bar" id="bar" style="--x:1;--tx:0;--sx:1;--sy:1;--p:0">
     <div class="matte base" id="base"></div>
+    <div class="fil" id="fil"></div>
     <div class="solid"></div>
     <div class="tabs" id="tabs">
       <button class="tab" aria-label="Контакты" data-ia="aria-label:contacts">
@@ -370,11 +372,11 @@ function filterFor(el, id) {
   return `<filter id="${id}" x="0%" y="0%" width="100%" height="100%">
 <feGaussianBlur in="SourceGraphic" stdDeviation="0.2" result="bl"/>
 <feImage href="${disp}" x="0" y="0" width="${w}" height="${h}" result="dm"/>
-<feDisplacementMap in="bl" in2="dm" scale="${mx * (soft ? .1 : .4)}" xChannelSelector="R" yChannelSelector="G" result="dp"/>
+<feDisplacementMap in="bl" in2="dm" scale="${mx * (soft ? .1 : id === 'lg-thumb' ? .45 : .4)}" xChannelSelector="R" yChannelSelector="G" result="dp"/>
 <feColorMatrix in="dp" type="saturate" values="5" result="ds"/>
 <feImage href="${spec}" x="0" y="0" width="${w}" height="${h}" result="sl"/>
 <feComposite in="ds" in2="sl" operator="in" result="sm"/>
-<feComponentTransfer in="sl" result="sf"><feFuncA type="linear" slope="${soft ? 0 : 1}"/></feComponentTransfer>
+<feComponentTransfer in="sl" result="sf"><feFuncA type="linear" slope="${soft ? 0 : id === 'lg-thumb' ? .22 : 1}"/></feComponentTransfer>
 <feBlend in="sm" in2="dp" mode="normal" result="ws"/>
 <feBlend in="sf" in2="ws" mode="normal"/></filter>`;
 }
@@ -383,7 +385,7 @@ const $ = id => document.getElementById(id);
 // Язык интерфейса (ru / en / uk / ko / zh), выбор запоминается
 let LANG = 'ru'; try { const sv = localStorage.getItem('lang'); if (sv === 'en' || sv === 'ru' || sv === 'uk' || sv === 'ko' || sv === 'zh') LANG = sv; } catch (e) {}
 const T = {"ru": {"emptyT": "Здесь пусто", "emptyS": "Как насчет того, чтобы потыкать и потягать Liquid Glass?", "contacts": "Контакты", "chats": "Чаты", "settings": "Настройки", "sort": "Сортировка", "search": "Поиск", "invite": "Пригласить", "byTime": "по времени захода", "byName": "по имени", "closeSearch": "Закрыть поиск", "langTitle": "Язык", "hide": "Скрыть", "demoH": "Демо", "devH": "Разработчик", "projH": "Мои проекты", "contH": "Связь", "demoT": "Это демо Liquid Glass в Telegram", "demoS": "Новый стандарт для мини-приложений в Telegram", "by": "Разработано пользователем", "bio": "Независимый разработчик ботов и мини-приложений. Очень хорошо выходит косить дизайн под iOS 27", "tMy": "Мой канал", "tNews": "Новости", "tUpd": "Обновления", "tOld": "Бывший канал", "cta": "Хочешь к себе в мини-апп такой же Liquid Glass? Отвечаю всем", "e1": "Еще посидим..", "e2": "Любовь до первой ошибки", "e3": "Любимчик", "e4": "Тоже самое", "e5": "чуточку", "hk": "Да ты прям хакер 😎", "foot": "© 2026 vovnx. Все права защищены"}, "en": {"emptyT": "It's empty here", "emptyS": "How about poking and dragging the Liquid Glass?", "contacts": "Contacts", "chats": "Chats", "settings": "Settings", "sort": "Sort", "search": "Search", "invite": "Invite", "byTime": "by last seen", "byName": "by name", "closeSearch": "Close search", "langTitle": "Language", "hide": "Hide", "demoH": "Demo", "devH": "Developer", "projH": "My projects", "contH": "Contact", "demoT": "This is a Liquid Glass demo in Telegram", "demoS": "A new standard for Telegram mini apps", "by": "Developed by", "bio": "Independent developer of bots and mini apps. Really good at mimicking iOS 27 design", "tMy": "My channel", "tNews": "News", "tUpd": "Updates", "tOld": "Former channel", "cta": "Want the same Liquid Glass in your mini app? I reply to everyone", "e1": "Let's stay a bit longer..", "e2": "Love until the first error", "e3": "Favorite", "e4": "Same here", "e5": "a little", "hk": "You're a real hacker 😎", "foot": "© 2026 vovnx. All rights reserved"}, "uk": {"emptyT": "Тут порожньо", "emptyS": "Як щодо того, щоб потикати й потягати Liquid Glass?", "contacts": "Контакти", "chats": "Чати", "settings": "Налаштування", "sort": "Сортування", "search": "Пошук", "invite": "Запросити", "byTime": "за часом заходу", "byName": "за ім’ям", "closeSearch": "Закрити пошук", "langTitle": "Мова", "hide": "Сховати", "demoH": "Демо", "devH": "Розробник", "projH": "Мої проєкти", "contH": "Зв’язок", "demoT": "Це демо Liquid Glass у Telegram", "demoS": "Новий стандарт для міні-застосунків у Telegram", "by": "Розроблено користувачем", "bio": "Незалежний розробник ботів і міні-застосунків. Дуже добре виходить косити дизайн під iOS 27", "tMy": "Мій канал", "tNews": "Новини", "tUpd": "Оновлення", "tOld": "Колишній канал", "cta": "Хочеш у свій міні-застосунок такий самий Liquid Glass? Відповідаю всім", "e1": "Ще посидимо..", "e2": "Кохання до першої помилки", "e3": "Улюбленець", "e4": "Те саме", "e5": "трошечки", "hk": "Та ти прямо хакер 😎", "foot": "© 2026 vovnx. Усі права захищено"}, "ko": {"emptyT": "여기는 비어 있어요", "emptyS": "Liquid Glass를 콕콕 누르고 쭉 끌어당겨 볼까요?", "contacts": "연락처", "chats": "채팅", "settings": "설정", "sort": "정렬", "search": "검색", "invite": "초대", "byTime": "최근 접속순", "byName": "이름순", "closeSearch": "검색 닫기", "langTitle": "언어", "hide": "숨기기", "demoH": "데모", "devH": "개발자", "projH": "내 프로젝트", "contH": "연락", "demoT": "Telegram의 Liquid Glass 데모입니다", "demoS": "Telegram 미니앱의 새로운 표준", "by": "개발자:", "bio": "봇과 미니앱을 만드는 독립 개발자. iOS 27 디자인을 따라 하는 데 꽤 능숙합니다", "tMy": "내 채널", "tNews": "뉴스", "tUpd": "업데이트", "tOld": "이전 채널", "cta": "내 미니앱에도 이런 Liquid Glass를 넣고 싶나요? 모두에게 답장해요", "e1": "조금만 더 앉아 있자..", "e2": "첫 에러가 나기 전까지의 사랑", "e3": "최애", "e4": "저도 똑같아요", "e5": "조금", "hk": "완전 해커시네요 😎", "foot": "© 2026 vovnx. 모든 권리 보유"}, "zh": {"emptyT": "这里空空如也", "emptyS": "要不要来戳一戳、拖一拖 Liquid Glass？", "contacts": "联系人", "chats": "聊天", "settings": "设置", "sort": "排序", "search": "搜索", "invite": "邀请", "byTime": "按最近在线", "byName": "按姓名", "closeSearch": "关闭搜索", "langTitle": "语言", "hide": "隐藏", "demoH": "演示", "devH": "开发者", "projH": "我的项目", "contH": "联系", "demoT": "这是 Telegram 中的 Liquid Glass 演示", "demoS": "Telegram 小程序的新标准", "by": "开发者：", "bio": "独立的机器人和小程序开发者。很擅长模仿 iOS 27 的设计", "tMy": "我的频道", "tNews": "新闻", "tUpd": "更新", "tOld": "旧频道", "cta": "想在你的小程序里也用上这样的 Liquid Glass？有问必答", "e1": "再坐一会儿..", "e2": "爱到第一个报错为止", "e3": "最爱", "e4": "我也一样", "e5": "一点点", "hk": "你简直是黑客 😎", "foot": "© 2026 vovnx. 保留所有权利"}};
-const bar = $('bar'), base = $('base'), thumb = $('thumb'), search = $('search');
+const bar = $('bar'), base = $('base'), fil = $('fil'), thumb = $('thumb'), search = $('search');
 const bdEls = [[base, 'bd-base'], [search, 'bd-search'], [$('sortBtn'), 'bd-sort'], [$('plusBtn'), 'bd-plus'], [$('sfield'), 'bd-field'], [$('sx'), 'bd-sx']];
 bdEls.forEach(([el]) => el.dataset.soft = '1');
 delete $('sfield').dataset.soft; delete $('sx').dataset.soft; // эти два — «толстое» стекло, как у капли
@@ -406,8 +408,8 @@ const tabs = [...$('tabs').children], tabsEl = $('tabs');
 const clone = tabsEl.cloneNode(true); clone.removeAttribute('id'); clone.setAttribute('aria-hidden', 'true');
 clone.querySelectorAll('button').forEach(b => b.tabIndex = -1); lens.appendChild(clone);
 const cloneTabs = [...clone.children];
-let cur = 1, vel = 0, target = 1, press = 0, pvel = 0, down = false, grab = 0, active = 1;
-let pRaw = 1, pT = 0, pV = 0, mv = 0, mvv = 0, wasMoving = false, lag = 1, lagv = 0; // скорость пальца (в табах/сек)
+let dirv = 1, cur = 1, vel = 0, target = 1, press = 0, pvel = 0, down = false, grab = 0, active = 1;
+let pRaw = 1, pT = 0, pV = 0, mv = 0, mvv = 0, zz = 0, zzv = 0, wasMoving = false, lag = 1, lagv = 0; // скорость пальца (в табах/сек)
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 // Подсветка таба следует за каплей, а сама вкладка (экран) открывается только когда палец отпущен
 let hi = 1;
@@ -436,7 +438,7 @@ bar.addEventListener('pointermove', e => { if (down) place(ptr(e), e.timeStamp);
   pV = clamp(pV, -9, 9);
   const dest = clamp(Math.round(pRaw + pV * .1), 0, 2); // бросок «перебрасывает» каплю дальше
   target = dest; setActive(dest);
-  vel += pV * .15;                              // импульс при отпускании
+  vel += pV * .22;                              // импульс при отпускании
 }));
 tabs.forEach((el, n) => el.addEventListener('click', e => { if (e.detail === 0) { target = n; setActive(n); } }));
 // Стеклянные кнопки: «тугая» жидкая капля — тянется с сопротивлением, растёт при зажатии, пружинит назад
@@ -467,46 +469,75 @@ let last = performance.now();
 (function loop(now) {
   const dt = Math.min(.05, (now - last) / 1000 || .016); last = now;
   // пружины: на пальце — мягкое следование, после отпускания — недодемпфированная (с перелётом и покачиванием)
-  const k = down ? 240 : 170, c = down ? 26 : 17, pk = 230, pc = 15;
+  const k = down ? 210 : 230, c = down ? 22 : 1.6 * Math.sqrt(230), pk = 200, pc = 11;   // после отпускания/тапа — почти критическое демпфирование: едва заметный перелёт (~1.5%)
   const n = 4, h = dt / n;
   for (let i = 0; i < n; i++) {
     vel += (-k * (cur - target) - c * vel) * h; cur += vel * h;
     pvel += (-pk * (press - (down ? 1 : 0)) - pc * pvel) * h; press += pvel * h;
-    lagv += (-190 * (lag - cur) - 10 * lagv) * h; lag += lagv * h; // «отстающее» тело капли
+    lagv += (-180 * (lag - cur) - 2 * Math.sqrt(180) * lagv) * h; lag += lagv * h; // «отстающее» тело капли
   }
   // без зажатия: пока капля едет, она раздувается ровно до краёв бара (297×190 при исходных 273×165)
   const moving = Math.abs(cur - target) > .1 || Math.abs(vel) > .9;
   { // критически задемпфированная пружина: мягкий старт и мягкая остановка, без рывка и перелёта
     // капля «приехала»: толчок наружу — она на миг раздувается чуть шире краёв бара,
     // затем с покачиванием (недодемпфированная пружина) возвращается и даже чуть недотягивает до нормы
-    if (wasMoving && !moving && !down) mvv += 12;
+    if (wasMoving && !moving && !down) zzv -= 2.4;                  // приземление: капля сплющивается (ниже и шире) и мягко возвращается
+    if (!wasMoving && moving) zzv += 1.4;                           // старт: капля «набухает» и плавно оседает
     wasMoving = moving;
-    const mk = moving ? 380 : 900, mc = 2 * Math.sqrt(mk) * (moving ? 1 : .75);
+    const mk = moving ? 380 : 900, mc = 2 * Math.sqrt(mk);
     for (let i = 0; i < 4; i++) { mvv += (-mk * (mv - (moving ? 1 : 0)) - mc * mvv) * (dt / 4); mv += mvv * (dt / 4); }
     mv = clamp(mv, -.2, 1.6);
   }
+  // вертикальная пружина (недодемпфированная): на ходу и под пальцем капля раздувается по высоте, на старте/финише пульсирует
+  { const zt = .02 * clamp(Math.abs(vel) / 6, 0, 1) + .04 * press;
+    for (let i = 0; i < 4; i++) { zzv += (-170 * (zz - zt) - 1.2 * Math.sqrt(170) * zzv) * (dt / 4); zz += zzv * (dt / 4); }
+    zz = clamp(zz, -.3, .3); }
   const g = (mv < 0 && press < .02) ? mv : Math.max(mv, press);
-  const st = clamp(Math.abs(vel) * .03, 0, .15) * (down ? 1 : .3);  // растяжение по скорости
-  const s = 1 + .088 * g + .082 * press, sy = 1 + .152 * g + .088 * press; // до краёв бара; при зажатии — ещё больше
+  const st = clamp(Math.abs(vel) * .06, 0, .3) * (down ? 1 : .6);  // растяжение по скорости
+  const s = 1 + .05 * g + .06 * press, sy = 1 + .24 * g + .16 * press; // до краёв бара; при зажатии — ещё больше
   bar.style.setProperty('--x', cur.toFixed(4));
   // Границы бара (843×190): капля может чуть выйти за них, дальше — мягкий «подушечный» упор:
   // деформация начинается заранее и нарастает плавно, об стенку она сплющивается и разбухает по высоте
   const sm = (v, m, K) => v <= m - K ? v : m - K * Math.exp(-(v - (m - K)) / K);
   const cx = 12 + cur * 273 + 136.5;
-  const horiz = w => [-sm(-(cx - w / 2), 15, 22), sm(cx + w / 2, 858, 22)];
-  const jel = clamp(cur - lag, -.35, .35);                    // желе: тянется на ходу, при остановке качнётся и успокоится — даже без удара о стенку
-  let sxv = s * (1 + st) * (1 + .3 * jel), syv = sy * (1 - st * .5) * (1 - .15 * jel);
-  let [Lc, Rc] = horiz(273 * sxv);
-  const cmp = Math.max(0, 1 - (Rc - Lc) / (273 * sxv));      // насколько сжало о стенку
-  vel *= 1 - Math.min(.4, cmp * 6 * dt);                      // стенка гасит скорость (мягкая подушка)
+  const horiz = w => [-sm(-(cx - w / 2), 48, 30), sm(cx + w / 2, 891, 30)];
+  if (Math.abs(vel) > .6) dirv = Math.sign(vel);
+  const jel = clamp((cur - lag) * dirv, -.55, .55);   // относительно направления движения: симметрично вправо и влево                    // желе: тянется на ходу, при остановке качнётся и успокоится — даже без удара о стенку
+  const stv = clamp(Math.abs(vel) * .04, 0, .24) * (down ? 1 : .8);
+  let sxv = s * (1 + st) * (1 + .55 * jel) * (1 - .45 * zz), syv = sy * (1 + zz);   // по высоте — без «желе» и приплюснутости: на переключении почти до краёв бара, чуть-чуть выступая
+  sxv = Math.min(sxv, 1.45);
+  let [Lc, Rc] = horiz(252 * sxv);
+  const cmp = Math.max(0, 1 - (Rc - Lc) / (252 * sxv));      // насколько сжало о стенку
+  vel *= 1 - Math.min(.3, cmp * 4 * dt);                      // стенка гасит скорость (мягкая подушка)
   syv *= 1 + .45 * cmp;                                       // сжало по ширине — раздалось по высоте
-  const h0 = 165 * syv, h1 = sm(h0, 206, 14);                 // сверху/снизу: выступ до 206, остальное в ширину
+  const h0 = 165 * syv, h1 = sm(h0, 214, 14);                 // сверху/снизу: выступ до 206, остальное в ширину
   sxv *= Math.sqrt(h0 / h1); syv = h1 / 165;
-  [Lc, Rc] = horiz(273 * sxv);
+  [Lc, Rc] = horiz(252 * sxv);
   bar.style.setProperty('--tx', ((Lc + Rc) / 2 - cx).toFixed(3));
-  bar.style.setProperty('--sx', ((Rc - Lc) / 273).toFixed(4));
+  bar.style.setProperty('--sx', ((Rc - Lc) / 252).toFixed(4));
   bar.style.setProperty('--sy', syv.toFixed(4));
   bar.style.setProperty('--p', clamp(g, 0, 1).toFixed(3));
+  // как в iOS 27: край бара «тянется» к выступившей капле и сливается с ней плавным скруглением (как жидкость)
+  { const U = bar.offsetWidth / 843, cxm = (Lc + Rc) / 2, r = 82.5 * syv, cy = 95, ex = r - cy;   // ex — насколько капля торчит над/под баром
+    let d = '';
+    if (ex > 1.5) {
+      const OX = 60, OY = 40, f = (x, y) => ((x + OX) * U).toFixed(1) + ' ' + ((y + OY) * U).toFixed(1);
+      const FLAT0 = 95, FLAT1 = 748;                                       // прямой участок бара (без скруглённых торцов)
+      const phi0 = Math.asin(cy / r), hc = Math.sqrt(r * r - cy * cy);
+      const build = (k, side, vert) => {                                   // side: +1 справа, -1 слева; vert: +1 верх, -1 низ
+        const phi1 = Math.asin(Math.min(1, (cy + k * ex) / r)), cc = side > 0 ? Rc - r : Lc + r;
+        const px = cc + side * r * Math.cos(phi1), py = -(r * Math.sin(phi1) - cy);        // точка на капле (py<0 — над баром)
+        const tt = -py / Math.cos(phi1), Cx = px + side * tt * Math.sin(phi1), P0x = Cx + side * Math.abs(Cx - px) * 2;
+        const xi = cc + side * hc;
+        if (side > 0 ? P0x > FLAT1 : P0x < FLAT0) return null;
+        const Y = y => vert > 0 ? y : 190 - y;
+        let pth = `M${f(xi, Y(0))} L${f(P0x, Y(0))} Q${f(Cx, Y(0))} ${f(px, Y(py))}`;
+        for (let a = 1; a <= 8; a++) { const ph = phi1 + (phi0 - phi1) * a / 8; pth += ` L${f(cc + side * r * Math.cos(ph), Y(-(r * Math.sin(ph) - cy)))}`; }
+        return pth + ' Z';
+      };
+      for (const side of [1, -1]) for (const vert of [1, -1]) for (const k of [.95, .65, .4]) { const q = build(k, side, vert); if (q) { d += q; break; } }
+    }
+    fil.style.clipPath = fil.style.webkitClipPath = d ? `path('${d}')` : 'path("M0 0 Z")'; }
   btnSteps.forEach(f => f(dt));
   requestAnimationFrame(loop);
 })(performance.now());
