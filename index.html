@@ -493,7 +493,7 @@ let last = performance.now();
     for (let i = 0; i < 4; i++) { zzv += (-170 * (zz - zt) - 1.2 * Math.sqrt(170) * zzv) * (dt / 4); zz += zzv * (dt / 4); }
     zz = clamp(zz, -.3, .3); }
   const g = (mv < 0 && press < .02) ? mv : Math.max(mv, press);
-  const st = clamp(Math.abs(vel) * .06, 0, .3) * (down ? 1 : .6);  // растяжение по скорости
+  const st = clamp(Math.abs(vel) * .055, 0, .26) * (down ? 1 : .6);  // растяжение по скорости
   const s = 1 + .05 * g + .06 * press, sy = 1 + .24 * g + .16 * press; // до краёв бара; при зажатии — ещё больше
   bar.style.setProperty('--x', cur.toFixed(4));
   // Границы бара (843×190): капля может чуть выйти за них, дальше — мягкий «подушечный» упор:
@@ -504,8 +504,8 @@ let last = performance.now();
   if (Math.abs(vel) > .6) dirv = Math.sign(vel);
   const jel = clamp((cur - lag) * dirv, -.55, .55);   // относительно направления движения: симметрично вправо и влево                    // желе: тянется на ходу, при остановке качнётся и успокоится — даже без удара о стенку
   const stv = clamp(Math.abs(vel) * .04, 0, .24) * (down ? 1 : .8);
-  let sxv = s * (1 + st) * (1 + .55 * jel) * (1 - .45 * zz), syv = sy * (1 + zz);   // по высоте — без «желе» и приплюснутости: на переключении почти до краёв бара, чуть-чуть выступая
-  sxv = Math.min(sxv, 1.45);
+  let sxv = s * (1 + st) * (1 + .48 * jel) * (1 - .45 * zz), syv = sy * (1 + zz);   // по высоте — без «желе» и приплюснутости: на переключении почти до краёв бара, чуть-чуть выступая
+  sxv = Math.min(sxv, 1.38);
   let [Lc, Rc] = horiz(252 * sxv);
   const cmp = Math.max(0, 1 - (Rc - Lc) / (252 * sxv));      // насколько сжало о стенку
   vel *= 1 - Math.min(.3, cmp * 4 * dt);                      // стенка гасит скорость (мягкая подушка)
